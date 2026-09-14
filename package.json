@@ -1,0 +1,20 @@
+{
+  "name": "site3d",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "shot": "node scripts/shot.mjs"
+  },
+  "dependencies": {
+    "gsap": "^3.13.0",
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.63.0",
+    "vite": "^7.1.5"
+  }
+}

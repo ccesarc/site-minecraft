@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.log
+
+# Capturas de referência do vídeo: 11 MB de PNG, não são fonte do projeto.
+sitequeestouvendo/
+
+# Saída do npm run shot.
+shots/

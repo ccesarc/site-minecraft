@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minecraft — Um mundo feito de blocos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- display=block: com swap o texto do loader nascia em Courier e trocava de fonte na frente do usuario. -->
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=block" rel="stylesheet" />
+
+  <!--
+    CSS do loader inline de proposito: o style.css so' chega junto com o JS,
+    e ate' la' o navegador pintaria o HTML cru. Isto pinta no primeiro quadro.
+  -->
+  <style>
+    #loader {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding-inline: 16px;
+      background: #2e2118 center / 64px 64px;
+      image-rendering: pixelated;
+      color: #fff;
+      text-align: center;
+      transition: opacity 0.5s ease;
+    }
+
+    #loader.is-saindo {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loader__titulo {
+      margin: 0;
+      font-family: 'Silkscreen', 'Courier New', monospace;
+      font-weight: 700;
+      font-size: clamp(18px, 2.4vw, 26px);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 3px 3px 0 #3f3f3f;
+    }
+
+    .loader__barra {
+      width: min(360px, 72vw);
+      height: 10px;
+      background: #6b6b6b;
+      outline: 2px solid #1e1e1e;
+    }
+
+    /* steps(): a barra anda aos saltos, como o resto do visual pixelado. */
+    .loader__preenche {
+      height: 100%;
+      background: #80ff80;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s steps(6, end);
+    }
+
+    .loader__etapa {
+      margin: 0;
+      min-height: 1.2em;
+      font-family: 'VT323', 'Courier New', monospace;
+      font-size: 21px;
+      letter-spacing: 0.06em;
+      color: #d0d0d0;
+      text-shadow: 2px 2px 0 #2a2a2a;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #loader, .loader__preenche { transition-duration: 0.01ms; }
+    }
+  </style>
+  <noscript><style>#loader { display: none; }</style></noscript>
+</head>
+<body>
+  <div id="loader" role="status" aria-live="polite">
+    <p class="loader__titulo">Gerando o mundo</p>
+    <div class="loader__barra"><div class="loader__preenche"></div></div>
+    <p class="loader__etapa">Carregando recursos</p>
+  </div>
+  <script>
+    // Inline e antes do bundle: a terra do fundo precisa existir ja' no
+    // primeiro quadro. Mesmo ruido e mesmas sementes do tile `dirt` do atlas,
+    // so' que escurecida, como o fundo de menu do jogo.
+    (() => {
+      const loader = document.getElementById('loader');
+      const c = document.createElement('canvas');
+      c.width = c.height = 16;
+      const ctx = c.getContext('2d');
+      const ruido = (x, y, s) => {
+        const n = Math.sin(x * 127.1 + y * 311.7 + s * 74.7) * 43758.5453;
+        return n - Math.floor(n);
+      };
+      for (let y = 0; y < 16; y++) {
+        for (let x = 0; x < 16; x++) {
+          ctx.fillStyle = `hsl(26 32% ${18 + (ruido(x, y, 9) - 0.5) * 12}%)`;
+          ctx.fillRect(x, y, 1, 1);
+        }
+      }
+      ctx.fillStyle = 'hsl(24 33% 12%)';
+      for (let i = 0; i < 12; i++) {
+        const s = 1 + Math.floor(ruido(i, 3, 10) * 2);
+        ctx.fillRect(Math.floor(ruido(i, 1, 10) * 16), Math.floor(ruido(i, 2, 10) * 16), s, s);
+      }
+      loader.style.backgroundImage = `url(${c.toDataURL()})`;
+
+      // Sem isto, um erro na montagem da cena deixa o loader girando para sempre.
+      const falhou = () => {
+        if (!loader.isConnected) return;
+        loader.querySelector('.loader__titulo').textContent = 'O mundo não carregou';
+        loader.querySelector('.loader__etapa').textContent = 'Recarregue a página';
+      };
+      window.addEventListener('error', falhou);
+      window.addEventListener('unhandledrejection', falhou);
+    })();
+  </script>
+
+  <canvas id="scene"></canvas>
+  <div id="flash" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="logo" href="#cap-1">Minecraft</a>
+    <nav class="nav">
+      <a href="#cap-1">O mundo</a>
+      <a href="#cap-2">Nether</a>
+      <a href="#cap-4">Lab 3D</a>
+    </nav>
+  </header>
+
+  <main id="journey">
+    <section class="chapter chapter--left" id="cap-1">
+      <div class="chapter__inner">
+        <article class="card">
+        <p class="kicker">#1 — O mundo</p>
+        <h1 class="title">Bloco<br />a bloco</h1>
+        <p class="lede">Um universo infinito. Cada bloco vira outra coisa nas suas mãos.</p>
+        <ul class="chips">
+          <li><span class="dot dot--grass"></span>Construir</li>
+          <li><span class="dot dot--map"></span>Explorar</li>
+          <li><span class="dot dot--heart"></span>Sobreviver</li>
+        </ul>
+        <a class="cta" href="#cap-2">Comprar Minecraft</a>
+        <p class="fineprint">Java &amp; Bedrock · PC, console e celular</p>
+      </article>
+    </div>
+    </section>
+
+    <section class="chapter chapter--right" id="cap-2">
+      <div class="chapter__inner">
+        <article class="card">
+        <p class="kicker">#2 — Nether</p>
+        <h2 class="title">Atravesse</h2>
+        <p class="lede">Obsidiana, uma faísca, e o mundo muda. Lá embaixo o tempo não passa.</p>
+        <ul class="chips">
+          <li><span class="dot dot--obsidian"></span>Obsidiana</li>
+          <li><span class="dot dot--portal"></span>Portal</li>
+          <li><span class="dot dot--fire"></span>Fogo</li>
+        </ul>
+        <a class="cta" href="#cap-3">Entrar no portal</a>
+        <p class="fineprint">1 bloco lá vale 8 aqui</p>
+      </article>
+    </div>
+    </section>
+
+    <section class="chapter chapter--center" id="cap-3">
+      <div class="chapter__inner">
+        <article class="card card--ghost">
+        <p class="kicker">#3 — Travessia</p>
+        <h2 class="title">Do outro lado</h2>
+        <p class="lede">Nada aqui é verde. E nada aqui espera por você.</p>
+      </article>
+    </div>
+    </section>
+
+    <section class="chapter chapter--right chapter--nether" id="cap-4">
+      <div class="chapter__inner">
+        <article class="card">
+        <p class="kicker">#4 — Nether</p>
+        <h2 class="title">Terra de fogo</h2>
+        <p class="lede">Lava até onde a vista alcança. E algo chorando no céu.</p>
+        <ul class="chips">
+          <li><span class="dot dot--fire"></span>Lava</li>
+          <li><span class="dot dot--netherrack"></span>Netherrack</li>
+        </ul>
+        <p class="fineprint">Sem noite. Sem trégua.</p>
+      </article>
+    </div>
+    </section>
+  </main>
+
+  <p class="scroll-hint" aria-hidden="true">Role para explorar</p>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
